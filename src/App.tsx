@@ -1,10 +1,10 @@
 import "./App.css";
-import Board from "./components/Board.tsx";
+import HomeScreen from "./pages/Home";
 
 function App() {
   return (
     <>
-      <Board />
+      <HomeScreen />
     </>
   );
 }
