@@ -1,3 +1,3 @@
 export default function RuleScreen() {
-  return <div>Home Screen</div>;
+  return <div>Rule Screen</div>;
 }

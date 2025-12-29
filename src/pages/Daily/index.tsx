@@ -1,3 +1,3 @@
 export default function DailyScreen() {
-  return <div>Home Screen</div>;
+  return <div>Daily Screen</div>;
 }

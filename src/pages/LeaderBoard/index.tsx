@@ -1,3 +1,3 @@
-export default function LeaderBoardScreen() {
-  return <div>Home Screen</div>;
+export default function LeaderboardScreen() {
+  return <div>Leaderboard Screen</div>;
 }

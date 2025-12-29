@@ -1,3 +1,3 @@
 export default function RandomScreen() {
-  return <div>Home Screen</div>;
+  return <div>Random Screen</div>;
 }
