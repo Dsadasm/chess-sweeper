@@ -1,50 +1,70 @@
 import styles from "./Board.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import CellComponent from "./Cell";
+import getChessMove from "../utils/getChessMove";
 
 interface Cell {
-  value: string | number | null;
+  value: string | number;
 }
 
 export default function Board() {
-  const [cells, setCells] = useState<Cell[][]>([
-    [{ value: 1 }, { value: 2 }, { value: 3 }],
-    [{ value: 4 }, { value: 5 }, { value: 6 }],
-    [{ value: 7 }, { value: 8 }, { value: 9 }],
-  ]);
+  const [cells, setCells] = useState<Cell[][]>([]);
+  const chessTypes: string[] = [
+    "pawn",
+    "rook",
+    "knight",
+    "bishop",
+    "queen",
+    "king",
+  ] as const;
+  const chessPieces = chessTypes.map((type) => ({ type, row: -1, col: -1 }));
 
-  const initializeCells = () => {
-    // TODO: Implement initialization logic
-  };
+  useEffect(() => {
+    const initializeCells = () => {
+      // Initialize a 10x10 board with 0
+      const newCells: Cell[][] = [];
+      for (let i = 0; i < 10; i++) {
+        const row: Cell[] = [];
+        for (let j = 0; j < 10; j++) {
+          row.push({ value: 0 });
+        }
+        newCells.push(row);
+      }
 
-  const revealCell = (row: number, col: number) => {
-    // TODO: Implement reveal logic
-  };
+      // Randomly place piece on the board
+      chessPieces.forEach((piece) => {
+        const row = Math.floor(Math.random() * 10);
+        const col = Math.floor(Math.random() * 10);
+        piece.row = row;
+        piece.col = col;
+        newCells[row][col] = { value: piece.type };
+      });
 
-  const guessCell = (row: number, col: number, guess: string) => {
-    // TODO: Implement guess logic
-  };
+      // Calculate possible moves for each piece and update cell values
+      chessPieces.forEach((piece) => {
+        const moves: number[][] = getChessMove(piece.type, piece.row, piece.col);
+        moves.forEach(([r, c]) => {
+          if (newCells[r][c].value === 0) {
+            newCells[r][c].value = 1;
+          } else if (typeof newCells[r][c].value === "number") {
+            newCells[r][c].value = (newCells[r][c].value as number) + 1;
+          }
+        });
+      })
 
-  // For testing purposes
-  const handleClick = () => {
-    const newCells = cells.map((row) =>
-      row.map((cell) => ({
-        value: cell.value === null ? 0 : (cell.value as number) + 1,
-      }))
-    );
-    setCells(newCells);
-  };
+      setCells(newCells);
+    };
 
-  // TODO: Need to make a new component for each cell
+    initializeCells();
+  }, []);
+
   return (
     <>
-      <button onClick={handleClick}>Test</button>
       <div className={styles.board}>
         {cells.map((row, rowIndex) => (
           <div key={rowIndex} className={styles.row}>
             {row.map((cell, cellIndex) => (
-              <div key={cellIndex} className={styles.cell}>
-                {cell.value !== null ? cell.value : ""}
-              </div>
+              <CellComponent key={cellIndex} value={cell.value} />
             ))}
           </div>
         ))}

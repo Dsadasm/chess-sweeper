@@ -1,3 +1,9 @@
+import Board from "../../components/Board";
+
 export default function RandomScreen() {
-  return <div>Random Screen</div>;
+  return (
+    <>
+      <Board />
+    </>
+  );
 }

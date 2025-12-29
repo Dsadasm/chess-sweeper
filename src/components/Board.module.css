@@ -1,11 +1,9 @@
 .board {
-
+  width: 500px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
 }
 
 .row {
-
-}
-
-.cell {
-
+  display: contents;
 }
