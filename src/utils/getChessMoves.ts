@@ -1,5 +1,5 @@
 // Take chess piece type and position, return possible moves
-export default function getChessMove(
+export default function getChessMoves(
   type: string,
   row: number,
   col: number
@@ -61,8 +61,8 @@ export default function getChessMove(
     }
     case "queen": {
       const moves = [
-        ...getChessMove("rook", row, col),
-        ...getChessMove("bishop", row, col),
+        ...getChessMoves("rook", row, col),
+        ...getChessMoves("bishop", row, col),
       ];
       return moves.filter(([r, c]) => isValid(r, c));
     }

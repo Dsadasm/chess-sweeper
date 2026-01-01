@@ -7,9 +7,11 @@ interface CellProps {
 }
 
 export default function Cell({ value, isRevealed, onClick }: CellProps) {
+  const classes = `${styles.cell} ${!isRevealed ? styles.unrevealed : ""}`.trim();
+
   return (
-    <div className={styles.cell} onClick={onClick}>
+    <div className={classes} onClick={onClick}>
       {isRevealed ? (value !== 0 ? value : "") : "H"}
     </div>
   );
-}
+} 

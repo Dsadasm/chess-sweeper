@@ -1,108 +1,83 @@
 import styles from "./Board.module.css";
-import { useEffect, useState } from "react";
 import CellComponent from "./Cell";
-import getChessMove from "../utils/getChessMove";
+import useInitBoard from "../hooks/useInitBoard";
+import type { Cell } from "../hooks/useInitBoard";
 
-interface Cell {
-  value: string | number;
-  isRevealed: boolean;
+interface BoardProps {
+  state: "reveal" | "guess";
+  setPoint: React.Dispatch<React.SetStateAction<number>>;
+  guessChessType?: "pawn" | "rook" | "knight" | "bishop" | "queen" | "king";
 }
 
-export default function Board() {
-  const [cells, setCells] = useState<Cell[][]>([]);
-  const chessTypes: string[] = [
-    "pawn",
-    "rook",
-    "knight",
-    "bishop",
-    "queen",
-    "king",
-  ] as const;
-  const chessPieces = chessTypes.map((type) => ({ type, row: -1, col: -1 }));
+export default function Board({ state, setPoint, guessChessType }: BoardProps) {
   const colSize = 10;
   const rowSize = 10;
+  const [cells, setCells] = useInitBoard(colSize, rowSize);
 
-  useEffect(() => {
-    const initializeCells = () => {
-      // Initialize a 10x10 board with 0
-      const newCells: Cell[][] = [];
-      for (let i = 0; i < colSize; i++) {
-        const row: Cell[] = [];
-        for (let j = 0; j < rowSize; j++) {
-          row.push({ value: 0, isRevealed: false });
-        }
-        newCells.push(row);
-      }
-
-      // Randomly place piece on the board
-      chessPieces.forEach((piece) => {
-        const row = Math.floor(Math.random() * 10);
-        const col = Math.floor(Math.random() * 10);
-        piece.row = row;
-        piece.col = col;
-        newCells[row][col].value = piece.type;
-      });
-
-      // Calculate possible moves for each piece and update cell values
-      chessPieces.forEach((piece) => {
-        const moves: number[][] = getChessMove(
-          piece.type,
-          piece.row,
-          piece.col
-        );
-        moves.forEach(([r, c]) => {
-          if (newCells[r][c].value === 0) {
-            newCells[r][c].value = 1;
-          } else if (typeof newCells[r][c].value === "number") {
-            newCells[r][c].value = (newCells[r][c].value as number) + 1;
-          }
-        });
-      });
-
-      setCells(newCells);
-    };
-
-    initializeCells();
-  }, []);
-
+  // Reveal cells recursively from row, col
+  // Returns the points gained from the reveal
   const revealCells = (
     mCells: Cell[][],
     row: number,
     col: number,
     step: number = 0
-  ): void => {
-    if (row < 0 || col < 0 || row >= rowSize || col >= colSize) return;
-    else if (mCells[row][col].isRevealed) return;
+  ): number => {
+    if (row < 0 || col < 0 || row >= rowSize || col >= colSize) return 0;
+    else if (mCells[row][col].isRevealed) return 0;
     else if (step === 0) {
       mCells[row][col].isRevealed = true;
 
       // Return if it is a chess piece
-      if (typeof mCells[row][col].value === "string") return;
+      if (typeof mCells[row][col].value === "string") return -5;
 
       // Reveal 3x3 area around the clicked cell that have value 0
       for (let r = row - 1; r <= row + 1; r++) {
         for (let c = col - 1; c <= col + 1; c++) {
+          // Skip out-of-bounds neighbors
+          if (r < 0 || c < 0 || r >= rowSize || c >= colSize) continue;
           if (mCells[r][c].value === 0) {
             revealCells(mCells, r, c, step + 1);
           }
         }
       }
+
+      return -1;
     } else {
       mCells[row][col].isRevealed = true;
 
       // Do normal minesweeper reveal for step > 0
-      if (mCells[row][col].value !== 0) return;
-      revealCells(mCells, row + 1, col, step + 1);
-      revealCells(mCells, row - 1, col, step + 1);
-      revealCells(mCells, row, col + 1, step + 1);
-      revealCells(mCells, row, col - 1, step + 1);
+      if (mCells[row][col].value === 0) {
+        revealCells(mCells, row + 1, col, step + 1);
+        revealCells(mCells, row - 1, col, step + 1);
+        revealCells(mCells, row, col + 1, step + 1);
+        revealCells(mCells, row, col - 1, step + 1);
+      }
     }
+
+    return 0;
   };
 
+  // Guess the piece at (row, col)
+  // Returns points gained from the guess
+  const guessPiece = (row: number, col: number): number => {
+    if (guessChessType === undefined) return 0;
+    else if (cells[row][col].value === guessChessType) {
+      return 3;
+    }
+    return -3;
+  };
+
+  // Handle cell click based on current state
   const handleCellClick = (row: number, col: number) => {
-    const newCells = [...cells];
-    revealCells(newCells, row, col);
-    setCells(newCells);
+    if (state === "guess") {
+      const pointsGained = guessPiece(row, col);
+      setPoint((prev) => prev + pointsGained);
+    } else if (state == "reveal") {
+      const newCells = [...cells];
+      const pointsGained = revealCells(newCells, row, col);
+      setCells(newCells);
+      setPoint((prev) => prev + pointsGained);
+    }
   };
 
   return (
