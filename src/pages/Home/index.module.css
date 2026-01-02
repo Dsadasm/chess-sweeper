@@ -1,0 +1,26 @@
+.title {
+  font-size: 6rem;
+  font-weight: bold;
+  text-align: center;
+  background-color: rgb(228, 227, 227);
+  width: fit-content;
+  margin: 1rem auto;
+  padding: 1rem;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  width: 50%;
+  margin: 1rem auto;
+  margin-top: 10rem;
+}
+
+.button {
+  flex: 0 0 40%;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
