@@ -2,7 +2,7 @@ import styles from "./index.module.css";
 
 export default function HomeScreen() {
   return (
-    <>
+    <div className={styles.container}>
       <h1 className={styles.title}>Chess Sweeper</h1>
       <div className={styles.buttonContainer}>
         <button className={styles.button}>RANDOM</button>
@@ -10,6 +10,6 @@ export default function HomeScreen() {
         <button className={styles.button}>RULES</button>
         <button className={styles.button}>LEADERBOARD</button>
       </div>
-    </>
+    </div>
   );
 }

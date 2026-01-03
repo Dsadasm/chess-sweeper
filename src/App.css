@@ -1,11 +1,3 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
 body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to right, grey 50%, lightgrey 50%);
-  color: #333;
+  margin: 0;
 }

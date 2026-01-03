@@ -1,10 +1,16 @@
+.container {
+  background: linear-gradient(to right, grey 50%, lightgrey 50%);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
 .title {
   font-size: 6rem;
   font-weight: bold;
   text-align: center;
   background-color: rgb(228, 227, 227);
   width: fit-content;
-  margin: 1rem auto;
+  margin: 0 auto;
   padding: 1rem;
 }
 
