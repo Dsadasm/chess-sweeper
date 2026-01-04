@@ -25,10 +25,16 @@ export default function Board({ state, setPoint, guessChessType }: BoardProps) {
     if (row < 0 || col < 0 || row >= rowSize || col >= colSize) return 0;
     else if (mCells[row][col].isRevealed) return 0;
     else if (step === 0) {
-      mCells[row][col].isRevealed = true;
-
       // Return if it is a chess piece
-      if (typeof mCells[row][col].value === "string") return -5;
+      if (typeof mCells[row][col].value === "string") {
+        mCells[row][col].isRevealed = true;
+        return -5;
+      }
+
+      // if the value 0, it will be revealed in the next steps
+      if (mCells[row][col].value > 0) {
+        mCells[row][col].isRevealed = true;
+      }
 
       // Reveal 3x3 area around the clicked cell that have value 0
       for (let r = row - 1; r <= row + 1; r++) {
