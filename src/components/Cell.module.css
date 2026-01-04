@@ -28,6 +28,12 @@
   font-weight: 700;
 }
 
+.piece {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
 /* Minesweeper-like number colors */
 .val1 {
   color: #0b5cff;
