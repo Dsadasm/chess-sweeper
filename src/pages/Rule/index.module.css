@@ -1,0 +1,213 @@
+.container {
+  max-width: 900px; /* Narrower for better readability */
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+}
+
+/* ===== PAGE HEADER ===== */
+.pageHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #eaeaea;
+}
+
+.pageTitle {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.pageSubtitle {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  margin: 0 0 2rem 0;
+}
+
+.pageControls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.controlButton {
+  padding: 0.75rem 1.5rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.controlButton:hover {
+  background: #2980b9;
+}
+
+/* ===== RULES CONTENT AREA ===== */
+.rulesContent {
+  margin-bottom: 3rem;
+}
+
+/* ===== RULE SECTIONS ===== */
+.ruleSection {
+  margin-bottom: 1.5rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  transition: box-shadow 0.3s ease;
+}
+
+.ruleSection:hover {
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+}
+
+.ruleSection.expanded {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sectionHeader {
+  background: #f8f9fa;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.sectionHeader:hover {
+  background: #e9ecef;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sectionNumber {
+  background: #3498db;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.expandIcon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #7f8c8d;
+  transition: transform 0.3s ease;
+}
+
+.ruleSection.expanded .expandIcon {
+  transform: rotate(180deg);
+}
+
+/* ===== SECTION CONTENT ===== */
+.sectionContent {
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sectionContent h3 {
+  color: #34495e;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+
+.sectionContent p {
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.sectionContent ul,
+.sectionContent ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.sectionContent li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+/* ===== SPECIAL ELEMENTS ===== */
+.example {
+  background: #fff8e1;
+  padding: 1.25rem;
+  border-radius: 6px;
+  margin: 1.25rem 0;
+  border-left: 4px solid #ffc107;
+}
+
+.note {
+  background: #e3f2fd;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  margin: 1.25rem 0;
+  border-left: 4px solid #2196f3;
+}
+
+/* ===== PAGE FOOTER ===== */
+.pageFooter {
+  text-align: center;
+  padding: 2rem 0;
+  margin-top: 3rem;
+  border-top: 1px solid #eaeaea;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .pageTitle {
+    font-size: 2rem;
+  }
+  
+  .pageControls {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .controlButton {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .sectionHeader {
+    padding: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.1rem;
+  }
+  
+  .sectionContent {
+    padding: 1rem;
+  }
+}
