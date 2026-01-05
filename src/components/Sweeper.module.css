@@ -1,0 +1,121 @@
+.container {
+  display: grid;
+  grid-template-rows: 80px 1fr; /* Header + content */
+  height: 100vh;
+  width: 100vw;
+  overflow: auto;
+}
+
+/* HEADER - stays at top */
+.topHeader {
+  background: #ababab;
+  color: rgb(0, 0, 0);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* MAIN CONTENT AREA - Board left, Panel right */
+.mainContent {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  width: fit-content; /* Key: Container fits content, not full width */
+  max-width: 100%; /* But don't exceed screen */
+  margin: 0 auto; /* Optional: center the whole layout */
+  gap: 50px;
+}
+
+/* CONTAINER for board + panel */
+.boardPanelContainer {
+  display: flex;
+  max-width: 1200px; /* Max total width */
+  width: 100%;
+  gap: 60px; /* ← MARGIN BETWEEN BOARD AND PANEL */
+}
+
+.boardSection {
+  width: 800px; /* Fixed board width OR use min/max */
+  background: #ffffff;
+  overflow: auto;
+  flex-shrink: 0; /* Board won't shrink */
+}
+
+.sidePanel {
+  width: 500px;
+  background: #ffffff;
+  overflow-y: auto;
+  flex-shrink: 0; /* Panel won't shrink */
+}
+
+/* Each Button Row */
+.buttonRow {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rowTitle {
+  margin: 0 0 12px 0;
+  color: #000000;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+}
+
+/* Button Group Container */
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Space between buttons */
+}
+
+/* Standard Button Style */
+.button {
+  flex: 1;
+  min-width: 50px;
+  padding: 12px 16px;
+  background: #ababab;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.button:hover {
+  background: linear-gradient(135deg, #e94560, #ff7a8a);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+}
+
+.button.active {
+  background: linear-gradient(135deg, #e94560, #ff7a8a);
+  border-color: #e94560;
+  box-shadow: 0 0 15px rgba(233, 69, 96, 0.4);
+}
+
+/* Smaller Buttons for Settings */
+.smallButton {
+  flex: 1;
+  min-width: 60px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  color: #a9b7c6;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.smallButton:hover {
+  background: rgba(233, 69, 96, 0.2);
+  color: white;
+}
