@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import DailyScreen from "./pages/Daily";
-import LeaderboardScreen from "./pages/Leaderboard";
+import LeaderboardScreen from "./pages/LeaderBoard";
 import RandomScreen from "./pages/Random";
 import RuleScreen from "./pages/Rule";
 import "./App.css";

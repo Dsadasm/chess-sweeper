@@ -1,0 +1,27 @@
+/* HEADER - stays at top */
+.navBar {
+  background: #ababab;
+  color: rgb(0, 0, 0);
+  padding: 0 24px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navBarContent {
+    width: 100vw;
+    display: flex;
+    justify-content: space-between;
+}
+
+.navBarTitle {
+    font-size: 3rem;
+
+}
+
+.navBarPageIndex {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+}

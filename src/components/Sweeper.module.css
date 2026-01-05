@@ -6,19 +6,12 @@
   overflow: auto;
 }
 
-/* HEADER - stays at top */
-.topHeader {
-  background: #ababab;
-  color: rgb(0, 0, 0);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 /* MAIN CONTENT AREA - Board left, Panel right */
 .mainContent {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   height: 100%;
   overflow: hidden;
   width: fit-content; /* Key: Container fits content, not full width */
@@ -118,4 +111,10 @@
 .smallButton:hover {
   background: rgba(233, 69, 96, 0.2);
   color: white;
+}
+
+.item {
+  flex: 0 1 auto;
+  width: fit-content;
+  padding: 20px;
 }
