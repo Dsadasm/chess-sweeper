@@ -1,27 +1,45 @@
-/* HEADER - stays at top */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+.navBarPadding {
+    padding-top: 60px;
+}
+
 .navBar {
-  background: #ababab;
-  color: rgb(0, 0, 0);
-  padding: 0 24px;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: space-between;
+    -webkit-user-select: none; /* Safari */
+    user-select: none; 
+    font-family: "Roboto", sans-serif;
+    position: fixed;
+    width: 100%;
+    height: 60px;
+    background: #ababab;
+    color: rgb(0, 0, 0);
+    padding: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .navBarContent {
-    width: 100vw;
+    font-weight: 400;
+    width: 100%;
+    padding: 5px 24px 5px 24px;
     display: flex;
     justify-content: space-between;
 }
 
 .navBarTitle {
-    font-size: 3rem;
-
+    font-size: 35px;
+    white-space: nowrap;
 }
 
 .navBarPageIndex {
+    align-items: center;
+    font-size: 25px;
     display: flex;
-    justify-content: space-between;
-    gap: 5px;
+}
+
+.navBarPage {
+    padding-left: 15px;
+    height: fit-content;
 }

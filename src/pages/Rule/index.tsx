@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './index.module.css';
+import NavBar from '../../components/NavBar';
 
 export default function RuleScreen() {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
@@ -38,6 +39,8 @@ export default function RuleScreen() {
   };
 
   return (
+    <>
+    <NavBar page = "rule"></NavBar>
     <div className={styles.container}>
       {/* TOP HEADER NAVIGATION */}
       <header className={styles.topHeader}>
@@ -141,6 +144,7 @@ export default function RuleScreen() {
         ↑ Back to Top
       </button>
     </div>
+    </>
   );
 }
 

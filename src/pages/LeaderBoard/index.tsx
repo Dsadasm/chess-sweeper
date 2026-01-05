@@ -4,7 +4,7 @@ export default function LeaderboardScreen() {
 
   return (
     <>
-    <NavBar page = "random" />
+    <NavBar page = "leaderboard" />
     <div>Leaderboard Screen</div>
     </>
   );

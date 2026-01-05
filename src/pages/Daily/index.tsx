@@ -1,3 +1,10 @@
+import NavBar from "../../components/NavBar"
+
 export default function DailyScreen() {
-  return <div>Daily Screen</div>;
+  return (
+  <>
+  <NavBar page = "daily"></NavBar>
+  <div>Daily Screen</div>
+  </>
+  )
 }
