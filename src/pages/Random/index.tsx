@@ -5,7 +5,7 @@ export default function RandomScreen() {
 
   return (
     <>
-      <NavBar page = "random" />
+      <NavBar/>
       <Sweeper/>
     </>
   );

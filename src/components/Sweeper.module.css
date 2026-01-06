@@ -1,9 +1,5 @@
 .container {
-  display: grid;
-  grid-template-rows: 80px 1fr; /* Header + content */
-  height: 100vh;
-  width: 100vw;
-  overflow: auto;
+  padding: 2.5rem;
 }
 
 /* MAIN CONTENT AREA - Board left, Panel right */
@@ -17,7 +13,7 @@
   width: fit-content; /* Key: Container fits content, not full width */
   max-width: 100%; /* But don't exceed screen */
   margin: 0 auto; /* Optional: center the whole layout */
-  gap: 50px;
+  gap: 2rem;
 }
 
 /* CONTAINER for board + panel */
@@ -116,5 +112,4 @@
 .item {
   flex: 0 1 auto;
   width: fit-content;
-  padding: 20px;
 }

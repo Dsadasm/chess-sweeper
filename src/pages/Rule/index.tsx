@@ -40,7 +40,7 @@ export default function RuleScreen() {
 
   return (
     <>
-    <NavBar page = "rule"></NavBar>
+    <NavBar/>
     <div className={styles.container}>
       {/* TOP HEADER NAVIGATION */}
       <header className={styles.topHeader}>

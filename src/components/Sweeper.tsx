@@ -20,7 +20,7 @@ export default function SweeperLayout() {
   const [point, setPoint] = useState(15);
 
   return (
-    <div className="styles.container">
+    <div className={styles.container}>
 
       {/* MAIN SECTION */}
       <main className={styles.mainContent}>

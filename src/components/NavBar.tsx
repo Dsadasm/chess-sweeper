@@ -2,11 +2,7 @@ import React from 'react';
 import styles from './NavBar.module.css';
 import { Link } from 'react-router-dom';
 
-interface NavBarProps {
-  page: string; // maybe change to "random" | "leaderboard" | ..., etc
-}
-
-export default function NavBar( { page }: NavBarProps) {
+export default function NavBar() {
     return(
         <>
         <nav className={styles.navBar}>
@@ -18,22 +14,31 @@ export default function NavBar( { page }: NavBarProps) {
 
                 {/* Page table */}
                 <div className={styles.navBarPageIndex}>
-                    <Link to="/daily" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <div className={styles.navBarPage}>Daily</div>
-                    </Link>
-                    <Link to="/random" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <div className={styles.navBarPage}>Random</div>
-                    </Link>
-                    <Link to="/leaderboard" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <div className={styles.navBarPage}>Leaderboard</div>
-                    </Link>
-                    <Link to="/rule" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <div className={styles.navBarPage}>Rule</div>
-                    </Link>
+                    <CustomLink href="/daily"> Daily </CustomLink>
+                    <CustomLink href="/random"> Random </CustomLink>
+                    <CustomLink href="/leaderboard"> Leaderboard </CustomLink>
+                    <CustomLink href="/rule"> Rule </CustomLink>
                 </div>
             </div>
         </nav>
         <div className={styles.navBarPadding}></div>
+        </>
+    );
+}
+
+type navBarPageCustomLinkProps = {
+    href: string;
+    children?: string;
+}
+
+function CustomLink({ href, children } : navBarPageCustomLinkProps) {
+    const path = window.location.pathname;
+    return (
+        <>
+        {/* give class of navBarPage and (if current page:) active */}
+        <Link to={href} className={`${styles.navBarPage} ${path === href ? styles.active : ""}`}>
+            {children}
+        </Link>
         </>
     );
 }

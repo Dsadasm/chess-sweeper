@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 .navBarPadding {
-    padding-top: 60px;
+    padding-top: 4rem;
 }
 
 .navBar {
-    -webkit-user-select: none; /* Safari */
+    -webkit-user-select: none;
     user-select: none; 
     font-family: "Roboto", sans-serif;
     position: fixed;
     width: 100%;
-    height: 60px;
+    height: 4rem;
     background: #ababab;
     color: rgb(0, 0, 0);
     padding: 0;
@@ -18,6 +18,7 @@
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
+    box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.5); /* A soft, dark shadow */
 }
 
 .navBarContent {
@@ -29,17 +30,35 @@
 }
 
 .navBarTitle {
-    font-size: 35px;
+    font-size: 2.5rem;
     white-space: nowrap;
 }
 
 .navBarPageIndex {
     align-items: center;
-    font-size: 25px;
+    font-size: 1.5rem;
     display: flex;
 }
 
 .navBarPage {
-    padding-left: 15px;
+    padding: 0.3rem 0.5rem 0.3rem 0.5rem;
     height: fit-content;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 1s cubic-bezier(.29,.67,.18,1);
+}
+
+.navBarPage.active {
+    border-bottom: 0.15rem solid black;
+    border-top: 0.15rem solid rgba(0, 0, 0, 0); /* to make it vertically center */
+}
+
+.navBarPage:hover {
+    animation-name: hoverNavBarPage;
+    background-color: rgb(214, 214, 214);
+}
+
+.navBarPage.active:hover {
+    border-bottom: 0.15rem solid black;
+    border-top: 0.15rem solid rgba(0, 0, 0, 0); /* to make it vertically center */
 }

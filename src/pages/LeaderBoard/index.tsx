@@ -1,11 +1,13 @@
 import NavBar from '../../components/NavBar';
+import Leaderboard from '../../components/Leaderboard'
 
 export default function LeaderboardScreen() {
 
   return (
     <>
-    <NavBar page = "leaderboard" />
+    <NavBar/>
     <div>Leaderboard Screen</div>
+    <Leaderboard/>
     </>
   );
 }
