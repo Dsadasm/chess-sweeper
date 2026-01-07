@@ -6,6 +6,7 @@ import RuleScreen from "./pages/Rule";
 import "./App.css";
 
 const router = createBrowserRouter([
+  { path: "/", element: <DailyScreen /> }, //default land on daily
   { path: "/daily", element: <DailyScreen /> },
   { path: "/leaderboard", element: <LeaderboardScreen /> },
   { path: "/random", element: <RandomScreen /> },
