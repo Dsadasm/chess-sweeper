@@ -6,7 +6,6 @@ export default function LeaderboardScreen() {
   return (
     <>
     <NavBar/>
-    <div>Leaderboard Screen</div>
     <Leaderboard/>
     </>
   );

@@ -22,7 +22,7 @@
 }
 
 .navBarContent {
-    font-weight: 400;
+    font-weight: 350;
     width: 100%;
     padding: 5px 24px 5px 24px;
     display: flex;
@@ -37,6 +37,7 @@
 .navBarPageIndex {
     align-items: center;
     font-size: 1.5rem;
+    font-weight: 250;
     display: flex;
 }
 
@@ -49,16 +50,19 @@
 }
 
 .navBarPage.active {
-    border-bottom: 0.15rem solid black;
-    border-top: 0.15rem solid rgba(0, 0, 0, 0); /* to make it vertically center */
+    border-bottom: 0.1rem solid black;
+    border-top: 0.1rem solid rgba(0, 0, 0, 0); /* to make it vertically center */
 }
 
 .navBarPage:hover {
     animation-name: hoverNavBarPage;
-    background-color: rgb(214, 214, 214);
+    background-color: rgb(192, 192, 192);
+    border-bottom: 0.1rem solid rgb(123, 123, 123);
 }
 
 .navBarPage.active:hover {
-    border-bottom: 0.15rem solid black;
-    border-top: 0.15rem solid rgba(0, 0, 0, 0); /* to make it vertically center */
+    border-bottom: 0.125rem solid black;
+    border-top: 0rem solid transparent; /* to make it vertically center */
+    background-color: rgb(116, 116, 116);
+
 }
