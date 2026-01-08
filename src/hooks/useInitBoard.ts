@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import getChessMoves from "../utils/getChessMoves";
+import LCG from "../utils/LCG";
 
 export interface Cell {
   value: string | number;
@@ -8,7 +9,8 @@ export interface Cell {
 
 export default function useInitBoard(
   colSize: number,
-  rowSize: number
+  rowSize: number,
+  isRandom: boolean = true
 ): [Cell[][], React.Dispatch<React.SetStateAction<Cell[][]>>] {
   const [cells, setCells] = useState<Cell[][]>([]);
   const chessTypes: string[] = [
@@ -20,6 +22,7 @@ export default function useInitBoard(
     "king",
   ] as const;
   const chessPieces = chessTypes.map((type) => ({ type, row: -1, col: -1 }));
+  const rng = new LCG();
 
   useEffect(() => {
     // Initialize a 10x10 board with 0
@@ -32,10 +35,26 @@ export default function useInitBoard(
       newCells.push(row);
     }
 
-    // Randomly place piece on the board
-    chessPieces.forEach((piece) => {
-      const row = Math.floor(Math.random() * 10);
-      const col = Math.floor(Math.random() * 10);
+    // Place pieces by sampling without replacement (shuffle coordinates)
+    const coords: number[][] = [];
+    for (let r = 0; r < rowSize; r++) {
+      for (let c = 0; c < colSize; c++) {
+        coords.push([r, c]);
+      }
+    }
+
+    // Fisher-Yates shuffle using either Math.random() or the seeded RNG
+    for (let i = coords.length - 1; i > 0; i--) {
+      const rand = isRandom ? Math.random() : rng.nextFloat();
+      const j = Math.floor(rand * (i + 1));
+      const tmp = coords[i];
+      coords[i] = coords[j];
+      coords[j] = tmp;
+    }
+
+    // Assign first N coordinates to the N pieces (unique positions)
+    chessPieces.forEach((piece, index) => {
+      const [row, col] = coords[index];
       piece.row = row;
       piece.col = col;
       newCells[row][col].value = piece.type;

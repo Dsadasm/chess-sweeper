@@ -1,10 +1,11 @@
-import NavBar from "../../components/NavBar"
+import NavBar from "../../components/NavBar";
+import Sweeper from "../../components/Sweeper";
 
 export default function DailyScreen() {
   return (
-  <>
-  <NavBar/>
-  <div>Daily Screen</div>
-  </>
-  )
+    <>
+      <NavBar />
+      <Sweeper isBoardRandom={false} />
+    </>
+  );
 }

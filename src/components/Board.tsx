@@ -7,12 +7,13 @@ interface BoardProps {
   state: "reveal" | "guess";
   setPoint: React.Dispatch<React.SetStateAction<number>>;
   guessChessType?: "pawn" | "rook" | "knight" | "bishop" | "queen" | "king";
+  isRandom: boolean;
 }
 
-export default function Board({ state, setPoint, guessChessType }: BoardProps) {
+export default function Board({ state, setPoint, guessChessType, isRandom = true }: BoardProps) {
   const colSize = 10;
   const rowSize = 10;
-  const [cells, setCells] = useInitBoard(colSize, rowSize);
+  const [cells, setCells] = useInitBoard(colSize, rowSize, isRandom);
 
   // Reveal cells recursively from row, col
   // Returns the points gained from the reveal
