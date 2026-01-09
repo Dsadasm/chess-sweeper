@@ -121,36 +121,36 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
             <div className={styles.buttonRow}>
               <h3 className={styles.rowTitle}>Pieces Left</h3>
               <div className={styles.buttonGroup}>
-                <button className={styles.button}>
-                  <img src={wK}></img>
+                <button className={styles.pieceButton}>
+                  <img src={wK} alt="King"></img>
                 </button>
-                <button className={styles.button}>1</button>
-                <button className={styles.button}>
-                  <img src={wQ}></img>
+                <p className={styles.pieceCountDisplay}>{pieceCounts.king}</p>
+                <button className={styles.pieceButton}>
+                  <img src={wQ} alt="Queen"></img>
                 </button>
-                <button className={styles.button}>1</button>
-                <button className={styles.button}>
-                  <img src={wR}></img>
+                <p className={styles.pieceCountDisplay}>{pieceCounts.queen}</p>
+                <button className={styles.pieceButton}>
+                  <img src={wR} alt="Rook"></img>
                 </button>
-                <button className={styles.button}>1</button>
+                <p className={styles.pieceCountDisplay}>{pieceCounts.rook}</p>
               </div>
             </div>
 
-            {/* ROW 4: Special Buttons */}
+            {/* ROW 4: Pieces Left */}
             <div className={styles.buttonRow}>
               <div className={styles.buttonGroup}>
-                <button className={styles.button}>
-                  <img src={wB}></img>
+                <button className={styles.pieceButton}>
+                  <img src={wB} alt="Bishop"></img>
                 </button>
-                <button className={styles.button}>1</button>
-                <button className={styles.button}>
-                  <img src={wN}></img>
+                <p className={styles.pieceCountDisplay}>{pieceCounts.bishop}</p>
+                <button className={styles.pieceButton}>
+                  <img src={wN} alt="Knight"></img>
                 </button>
-                <button className={styles.button}>1</button>
-                <button className={styles.button}>
-                  <img src={wP}></img>
+                <p className={styles.pieceCountDisplay}>{pieceCounts.knight}</p>
+                <button className={styles.pieceButton}>
+                  <img src={wP} alt="Pawn"></img>
                 </button>
-                <button className={styles.button}>1</button>
+                <p className={styles.pieceCountDisplay}>{pieceCounts.pawn}</p>
               </div>
             </div>
 
