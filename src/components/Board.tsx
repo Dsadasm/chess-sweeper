@@ -1,19 +1,20 @@
 import styles from "./Board.module.css";
 import CellComponent from "./Cell";
-import useInitBoard from "../hooks/useInitBoard";
 import type { Cell } from "../hooks/useInitBoard";
 
 interface BoardProps {
   state: "reveal" | "guess";
   setPoint: React.Dispatch<React.SetStateAction<number>>;
   guessChessType?: "pawn" | "rook" | "knight" | "bishop" | "queen" | "king";
+  cells : Cell[][]; // adding these here so Sweeper can access
+  setCells : React.Dispatch<React.SetStateAction<Cell[][]>>;
   isRandom: boolean;
 }
 
-export default function Board({ state, setPoint, guessChessType, isRandom = true }: BoardProps) {
+export default function Board({ state, setPoint, guessChessType, cells, setCells, isRandom = true }: BoardProps) {
   const colSize = 10;
   const rowSize = 10;
-  const [cells, setCells] = useInitBoard(colSize, rowSize, isRandom);
+  // init board at Sweeper instead
 
   // Reveal cells recursively from row, col
   // Returns the points gained from the reveal
