@@ -1,7 +1,8 @@
 // Contains all main parts of ChessSweeper (i.e. Board + other UI parts)
 import Board from "../components/Board";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import styles from "./Sweeper.module.css";
+import useInitBoard from "../hooks/useInitBoard"; // Import the hook
 
 // Images
 import wP from "../assets/wP.svg";
@@ -15,9 +16,75 @@ interface SweeperProps {
   isBoardRandom: boolean;
 }
 
+const countPieces = (cells: any[][]) => {
+  const counts = {
+    pawn: 0,
+    rook: 0,
+    knight: 0,
+    bishop: 0,
+    queen: 0,
+    king: 0,
+  };
+
+  cells.forEach(row => {
+    row.forEach(cell => {
+      if (!cell.isRevealed && typeof cell.value === 'string') {
+        const pieceType = cell.value as keyof typeof counts;
+        if (counts.hasOwnProperty(pieceType)) {
+          counts[pieceType] += 1;
+        }
+      }
+    });
+  });
+
+  return counts;
+};
+
 export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
+  // Init board state here
+  const colSize = 10;
+  const rowSize = 10;
+  const [cells, setCells] = useInitBoard(colSize, rowSize, isBoardRandom);
+
   const [boardState, setBoardState] = useState<"reveal" | "guess">("reveal");
   const [point, setPoint] = useState(15);
+
+  // Timer
+  const [timeLeft, setTimeLeft] = useState(180);
+
+  // Ref to store interval ID
+  const timerRef = useRef<number | null>(null);
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    // Set up the timer interval
+    timerRef.current = window.setInterval(() => {
+      setTimeLeft(prevTime => {
+        if (prevTime <= 0) {
+          // Stop at 0
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    // Clean up on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
+  const pieceCounts = useMemo(() => countPieces(cells), [cells]);
 
   return (
     <div className={styles.container}>
@@ -28,6 +95,8 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
           <Board
             state={boardState}
             setPoint={setPoint}
+            cells={cells} // Pass cells to Board
+            setCells={setCells} // Pass setCells to Board
             isRandom={isBoardRandom}
           />
         </div>
@@ -38,8 +107,8 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
             {/* ROW 1: TIMER & SCORE (NOT FUNCTIONAL YET)*/}
             <div className={styles.buttonRow}>
               <div className={styles.buttonGroup}>
-                <button className={styles.button}>03:00</button>
-                <button className={styles.button}>15</button>
+                <p className={styles.textDisplay}> {formatTime(timeLeft)} </p>
+                <p className={styles.textDisplay}> {point} </p>
               </div>
             </div>
 
