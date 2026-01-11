@@ -13,8 +13,8 @@ export default function getChessMoves(
   switch (type) {
     case "pawn": {
       const moves = [
-        [row + 1, col],
-        [row + 2, col],
+        [row - 1, col + 1],
+        [row - 1, col - 1],
       ];
       return moves.filter(([r, c]) => isValid(r, c));
     }
