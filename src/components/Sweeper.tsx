@@ -49,6 +49,9 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   const [boardState, setBoardState] = useState<"reveal" | "guess">("reveal");
   const [point, setPoint] = useState(15);
 
+  // Current selected piece
+  const [selectedPieceType, setSelectedPieceType] = useState<"pawn" | "rook" | "knight" | "bishop" | "queen" | "king" | undefined>(undefined);
+
   // Timer
   const [timeLeft, setTimeLeft] = useState(180);
 
@@ -86,6 +89,28 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
 
   const pieceCounts = useMemo(() => countPieces(cells), [cells]);
 
+  // Function when guess button is toggled
+  const handleGuessButtonToggle = () => {
+    if (boardState === "reveal") {
+      setBoardState("guess");
+    } else {
+      setBoardState("reveal");
+      setSelectedPieceType(undefined); // Clear piece selection
+    }
+  };
+
+  // ADD: Function to handle piece selection
+  const handlePieceSelect = (pieceType: "pawn" | "rook" | "knight" | "bishop" | "queen" | "king") => {
+    // Only allow selection in guess mode
+    if (boardState !== "guess") return;
+    
+    if (selectedPieceType === pieceType) {
+      setSelectedPieceType(undefined);
+    } else {
+      setSelectedPieceType(pieceType);
+    }
+  };
+
   return (
     <div className={styles.container}>
       {/* MAIN SECTION */}
@@ -98,6 +123,7 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
             cells={cells} // Pass cells to Board
             setCells={setCells} // Pass setCells to Board
             isRandom={isBoardRandom}
+            guessChessType={selectedPieceType}
           />
         </div>
 
@@ -114,22 +140,39 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
 
             {/* ROW 2: Action Buttons */}
             <div className={styles.buttonRow}>
-              <button className={styles.button}>(Guess)</button>
+              <button 
+                className={`${styles.button} ${boardState === "guess" ? styles.active : ""}`} 
+                onClick={handleGuessButtonToggle}
+              >
+                {"Guess"}
+              </button>
             </div>
 
             {/* ROW 3: Pieces Left */}
             <div className={styles.buttonRow}>
               <h3 className={styles.rowTitle}>Pieces Left</h3>
               <div className={styles.buttonGroup}>
-                <button className={styles.pieceButton}>
+                <button 
+                  className={`${styles.pieceButton} ${selectedPieceType === "king" ? styles.selected : ""}`}
+                  onClick={() => handlePieceSelect("king")}
+                  disabled={boardState !== "guess" || pieceCounts.king === 0}
+                >
                   <img src={wK} alt="King"></img>
                 </button>
                 <p className={styles.pieceCountDisplay}>{pieceCounts.king}</p>
-                <button className={styles.pieceButton}>
+                <button 
+                  className={`${styles.pieceButton} ${selectedPieceType === "queen" ? styles.selected : ""}`}
+                  onClick={() => handlePieceSelect("queen")}
+                  disabled={boardState !== "guess" || pieceCounts.queen === 0}
+                >
                   <img src={wQ} alt="Queen"></img>
                 </button>
                 <p className={styles.pieceCountDisplay}>{pieceCounts.queen}</p>
-                <button className={styles.pieceButton}>
+                <button 
+                  className={`${styles.pieceButton} ${selectedPieceType === "rook" ? styles.selected : ""}`}
+                  onClick={() => handlePieceSelect("rook")}
+                  disabled={boardState !== "guess" || pieceCounts.rook === 0}
+                >
                   <img src={wR} alt="Rook"></img>
                 </button>
                 <p className={styles.pieceCountDisplay}>{pieceCounts.rook}</p>
@@ -139,15 +182,27 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
             {/* ROW 4: Pieces Left */}
             <div className={styles.buttonRow}>
               <div className={styles.buttonGroup}>
-                <button className={styles.pieceButton}>
+                <button 
+                  className={`${styles.pieceButton} ${selectedPieceType === "bishop" ? styles.selected : ""}`}
+                  onClick={() => handlePieceSelect("bishop")}
+                  disabled={boardState !== "guess" || pieceCounts.bishop === 0}
+                >
                   <img src={wB} alt="Bishop"></img>
                 </button>
                 <p className={styles.pieceCountDisplay}>{pieceCounts.bishop}</p>
-                <button className={styles.pieceButton}>
+                <button 
+                  className={`${styles.pieceButton} ${selectedPieceType === "knight" ? styles.selected : ""}`}
+                  onClick={() => handlePieceSelect("knight")}
+                  disabled={boardState !== "guess" || pieceCounts.knight === 0}
+                >
                   <img src={wN} alt="Knight"></img>
                 </button>
                 <p className={styles.pieceCountDisplay}>{pieceCounts.knight}</p>
-                <button className={styles.pieceButton}>
+                <button 
+                  className={`${styles.pieceButton} ${selectedPieceType === "pawn" ? styles.selected : ""}`}
+                  onClick={() => handlePieceSelect("pawn")}
+                  disabled={boardState !== "guess" || pieceCounts.pawn === 0}
+                >
                   <img src={wP} alt="Pawn"></img>
                 </button>
                 <p className={styles.pieceCountDisplay}>{pieceCounts.pawn}</p>
