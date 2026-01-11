@@ -52,6 +52,11 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   // Current selected piece
   const [selectedPieceType, setSelectedPieceType] = useState<"pawn" | "rook" | "knight" | "bishop" | "queen" | "king" | undefined>(undefined);
 
+  const [gameState, setGameState] = useState<"waiting" | "playing" | "won" | "lost">("waiting");
+
+  // Popup for winning/losing
+  const [showPopup, setShowPopup] = useState(false);
+
   // Timer
   const [timeLeft, setTimeLeft] = useState(180);
 
@@ -65,29 +70,79 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   };
 
   useEffect(() => {
-    // Set up the timer interval
-    timerRef.current = window.setInterval(() => {
-      setTimeLeft(prevTime => {
-        if (prevTime <= 0) {
-          // Stop at 0
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    // Only start timer on first click
+    if (gameState === "playing") {
+      timerRef.current = window.setInterval(() => {
+        setTimeLeft(prevTime => {
+          if (prevTime <= 0) {
+            // Stop at 0
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+            }
+            // Check win condition when time runs out
+            checkWinCondition();
+            return 0;
           }
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
 
-    // Clean up on unmount
+    // Clean up on unmount or when gameState changes
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, []); // Empty dependency array means this runs once on mount
+  }, [gameState]);
+
+  // Call on first reveal
+  const startGame = () => {
+    if (gameState === "waiting") {
+      setGameState("playing");
+    }
+  };
 
   const pieceCounts = useMemo(() => countPieces(cells), [cells]);
+
+  const checkWinCondition = () => {
+    if (gameState === "waiting") return; 
+
+    // Calculate total pieces left
+    const totalPiecesLeft = Object.values(pieceCounts).reduce((sum, count) => sum + count, 0);
+    
+    // Win if no pieces left
+    if (totalPiecesLeft === 0) {
+      setGameState("won");
+      setShowPopup(true);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      return;
+    }
+    
+    // Lose if no more points
+    if (point < 0) {
+      setGameState("lost");
+      setShowPopup(true);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      return;
+    }
+  };
+  // Check win/lose conditions when points or piece counts change
+  useEffect(() => {
+    if (gameState === "playing") {
+      checkWinCondition();
+    }
+  }, [point, pieceCounts, timeLeft]);
 
   // Function when guess button is toggled
   const handleGuessButtonToggle = () => {
@@ -111,6 +166,42 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     }
   };
 
+  // Popup component
+  const GamePopup = () => {
+    if (!showPopup) return null;
+    
+    const popupTitle = gameState === "won" ? "Congratulations! You Won!" : "Game Over!";
+    const popupMessage = gameState === "won" 
+      ? `You found all chess pieces with ${point} points and ${formatTime(timeLeft)} remaining!`
+      : `${point < 0 ? "You lost!" : "You flagged!"} ${Object.values(pieceCounts).reduce((a, b) => a + b, 0)} pieces remaining.`;
+    
+    return (
+      <div className={styles.popupOverlay}>
+        <div className={styles.popup}>
+          <h2 className={styles.popupTitle}>{popupTitle}</h2>
+          <p className={styles.popupMessage}>{popupMessage}</p>
+          <p className={styles.popupStats}>
+            Final Score: {point} points<br />
+            Time Remaining: {formatTime(timeLeft)}<br />
+          </p>
+          <div className={styles.popupButtons}>
+            <button 
+              className={`${styles.button} ${styles.popupButton}`}
+            >
+              Play Again
+            </button>
+            <button 
+              className={`${styles.button} ${styles.popupButtonSecondary}`}
+              onClick={() => setShowPopup(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.container}>
       {/* MAIN SECTION */}
@@ -124,6 +215,7 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
             setCells={setCells} // Pass setCells to Board
             isRandom={isBoardRandom}
             guessChessType={selectedPieceType}
+            startGame={startGame}
           />
         </div>
 
@@ -216,6 +308,8 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
           </aside>
         </div>
       </main>
+      {/* Game Popup */}
+      <GamePopup />
     </div>
   );
 }
