@@ -1,33 +1,45 @@
 import styles from './Leaderboard.module.css';
+import { useState, useEffect } from 'react';
 
 export default function Leaderboard() {
-    const placeHolderList = [
-        {rank: 1, player: "foo", score: 100, time: "1:15"},
-        {rank: 2, player: "bar", score: 89,  time: "1:18"},
-        {rank: 3, player: "buz", score: 67,  time: "1:26"},
-        {rank: 4, player: "abc", score: 67,  time: "2:14"},
-        {rank: 5, player: "xyz", score: 34,  time: "3:00"}
-    ];
+    const [data, setData] = useState([]);
 
-    // TODO: if (leaderboard is empty) return (empty template); else 
+    //fetch records from server
+    useEffect(() => {
+        const fetchLeaderboard = async () => {
+            fetch('http://127.0.0.1:8000/api/dailyrecords/?format=json')
+            .then(res => res.json())
+            .then(res => {
+                const rankedData = res.map((item, index) => ({
+                    ...item,
+                    rank: index + 1
+                })) 
+                setData(rankedData)
+            })          
+        }
+        fetchLeaderboard();
+    }, []);
 
     return (
         <>
         <div className={styles.leaderboardContainer}>
             <div className={styles.leaderboardTitle}> Leaderboard </div>
             <table className={styles.leaderboardTable}>
-                <tr className={styles.leaderboardHeadersRow}>
-                    <th className={styles.leaderboardHeaders} style={{width: "4rem"}}>Rank</th>
-                    <th className={styles.leaderboardHeaders} style={{width: "10rem"}}>Player</th>
-                    <th className={styles.leaderboardHeaders} style={{width: "4rem"}}>Score</th>
-                    <th className={styles.leaderboardHeaders} style={{width: "4rem"}}>Time</th>
-                </tr>
-
+                <thead>
+                    <tr className={styles.leaderboardHeadersRow}>
+                        <th className={styles.leaderboardHeaders} style={{width: "4rem"}}>Rank</th>
+                        <th className={styles.leaderboardHeaders} style={{width: "10rem"}}>Player</th>
+                        <th className={styles.leaderboardHeaders} style={{width: "4rem"}}>Score</th>
+                        <th className={styles.leaderboardHeaders} style={{width: "4rem"}}>Time</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
                 {   /* Render all records from the list */
-                    placeHolderList.map((record) => (
-                    <LeaderboardRow rank={record.rank} player={record.player} score={record.score} time={record.time}/>
+                    data.map((record) => (
+                    <LeaderboardRow key={record.id} rank={record.rank} name={record.name} point={record.point} time={record.time}/>
                 ))}
-
+                </tbody>
             </table>
         </div>
         </>
@@ -36,19 +48,19 @@ export default function Leaderboard() {
 
 type leaderboardRowProps = {
     rank: number;
-    player: string;
-    score: number;
+    name: string;
+    point: number;
     time: string;
 }
 
-function LeaderboardRow( { rank, player, score, time} : leaderboardRowProps) {
+function LeaderboardRow( { rank, name, point, time} : leaderboardRowProps) {
 
     return (
         <>
         <tr className={rank%2? styles.leaderboardRecordsRowEven : styles.leaderboardRecordsRowOdd}>
             <td className={styles.leaderboardRecords}>{rank}</td>
-            <td className={styles.leaderboardRecords}>{player}</td>
-            <td className={styles.leaderboardRecords}>{score}</td>
+            <td className={styles.leaderboardRecords}>{name}</td>
+            <td className={styles.leaderboardRecords}>{point}</td>
             <td className={styles.leaderboardRecords}>{time}</td>
         </tr>
         </>
