@@ -120,6 +120,11 @@
   object-fit: contain;
 }
 
+.pieceButton.selected {
+  background-color: #2196F3; /* Blue to indicate selection */
+  border: 2px solid #0d47a1;
+}
+
 /* Piece count display - for showing numbers */
 .pieceCountDisplay {
   flex: 1;
