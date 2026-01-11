@@ -9,9 +9,11 @@ interface BoardProps {
   cells : Cell[][]; // adding these here so Sweeper can access
   setCells : React.Dispatch<React.SetStateAction<Cell[][]>>;
   isRandom: boolean;
+  gameState?: "waiting" | "playing" | "won" | "lost"; 
+  startGame?: () => void;
 }
 
-export default function Board({ state, setPoint, guessChessType, cells, setCells, isRandom = true }: BoardProps) {
+export default function Board({ state, setPoint, guessChessType, cells, setCells, isRandom = true, gameState = "waiting", startGame }: BoardProps) {
   const colSize = 10;
   const rowSize = 10;
   // init board at Sweeper instead
@@ -81,6 +83,9 @@ export default function Board({ state, setPoint, guessChessType, cells, setCells
 
   // Handle cell click based on current state
   const handleCellClick = (row: number, col: number) => {
+    if (gameState === "waiting" && startGame) {
+      startGame();
+    }
     if (state === "guess") {
       const pointsGained = guessPiece(row, col);
       setPoint((prev) => prev + pointsGained);
