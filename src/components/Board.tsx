@@ -70,6 +70,10 @@ export default function Board({ state, setPoint, guessChessType, cells, setCells
   const guessPiece = (row: number, col: number): number => {
     if (guessChessType === undefined) return 0;
     else if (cells[row][col].value === guessChessType) {
+      // Reveal single cell on correct guess
+      const newCells = [...cells];
+      newCells[row][col].isRevealed = true;
+      setCells(newCells);
       return 3;
     }
     return -3;
