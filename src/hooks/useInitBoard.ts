@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import getChessMoves from "../utils/getChessMoves";
 import LCG from "../utils/LCG";
 
@@ -7,11 +7,22 @@ export interface Cell {
   isRevealed: boolean;
 }
 
+export interface ChessPiece {
+  type: string;
+  row: number;
+  col: number;
+  isResolved: boolean;
+}
+
 export default function useInitBoard(
   colSize: number,
   rowSize: number,
   isRandom: boolean = true
-): [Cell[][], React.Dispatch<React.SetStateAction<Cell[][]>>] {
+): [
+  Cell[][],
+  React.Dispatch<React.SetStateAction<Cell[][]>>,
+  React.RefObject<ChessPiece[]>
+] {
   const [cells, setCells] = useState<Cell[][]>([]);
   const chessTypes: string[] = [
     "pawn",
@@ -21,7 +32,14 @@ export default function useInitBoard(
     "queen",
     "king",
   ] as const;
-  const chessPieces = chessTypes.map((type) => ({ type, row: -1, col: -1 }));
+  const chessPiecesRef = useRef<ChessPiece[]>(
+    chessTypes.map((type) => ({
+      type,
+      row: -1,
+      col: -1,
+      isResolved: false,
+    }))
+  );
   const rng = new LCG();
 
   useEffect(() => {
@@ -53,7 +71,7 @@ export default function useInitBoard(
     }
 
     // Assign first N coordinates to the N pieces (unique positions)
-    chessPieces.forEach((piece, index) => {
+    chessPiecesRef.current.forEach((piece, index) => {
       const [row, col] = coords[index];
       piece.row = row;
       piece.col = col;
@@ -61,7 +79,7 @@ export default function useInitBoard(
     });
 
     // Calculate possible moves for each piece and update cell values
-    chessPieces.forEach((piece) => {
+    chessPiecesRef.current.forEach((piece) => {
       const moves: number[][] = getChessMoves(piece.type, piece.row, piece.col);
       moves.forEach(([r, c]) => {
         if (newCells[r][c].value === 0) {
@@ -75,5 +93,5 @@ export default function useInitBoard(
     setCells(newCells);
   }, []);
 
-  return [cells, setCells];
+  return [cells, setCells, chessPiecesRef];
 }
