@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import getChessMoves from "../utils/getChessMoves";
 import LCG from "../utils/LCG";
 
@@ -14,9 +14,66 @@ export interface ChessPiece {
   isResolved: boolean;
 }
 
-export default function useInitBoard(
-  colSize: number,
+export function initBoard(
   rowSize: number,
+  colSize: number,
+  isRandom: boolean,
+  chessPiecesRef: React.RefObject<ChessPiece[]>
+): Cell[][] {
+  // Initialize a 10x10 board with 0
+  const newCells: Cell[][] = [];
+  for (let i = 0; i < rowSize; i++) {
+    const row: Cell[] = [];
+    for (let j = 0; j < colSize; j++) {
+      row.push({ value: 0, isRevealed: false });
+    }
+    newCells.push(row);
+  }
+
+  // Place pieces by sampling without replacement (shuffle coordinates)
+  const coords: number[][] = [];
+  for (let r = 0; r < rowSize; r++) {
+    for (let c = 0; c < colSize; c++) {
+      coords.push([r, c]);
+    }
+  }
+
+  // Fisher-Yates shuffle using either Math.random() or the seeded RNG
+  const rng = new LCG();
+  for (let i = coords.length - 1; i > 0; i--) {
+    const rand = isRandom ? Math.random() : rng.nextFloat();
+    const j = Math.floor(rand * (i + 1));
+    const tmp = coords[i];
+    coords[i] = coords[j];
+    coords[j] = tmp;
+  }
+
+  // Assign first N coordinates to the N pieces (unique positions)
+  chessPiecesRef.current.forEach((piece, index) => {
+    const [row, col] = coords[index];
+    piece.row = row;
+    piece.col = col;
+    newCells[row][col].value = piece.type;
+  });
+
+  // Calculate possible moves for each piece and update cell values
+  chessPiecesRef.current.forEach((piece) => {
+    const moves: number[][] = getChessMoves(piece.type, piece.row, piece.col);
+    moves.forEach(([r, c]) => {
+      if (newCells[r][c].value === 0) {
+        newCells[r][c].value = 1;
+      } else if (typeof newCells[r][c].value === "number") {
+        newCells[r][c].value = (newCells[r][c].value as number) + 1;
+      }
+    });
+  });
+
+  return newCells;
+}
+
+export default function useInitBoard(
+  rowSize: number,
+  colSize: number,
   isRandom: boolean = true
 ): [
   Cell[][],
@@ -40,56 +97,9 @@ export default function useInitBoard(
       isResolved: false,
     }))
   );
-  const rng = new LCG();
 
-  useMemo(() => {
-    // Initialize a 10x10 board with 0
-    const newCells: Cell[][] = [];
-    for (let i = 0; i < colSize; i++) {
-      const row: Cell[] = [];
-      for (let j = 0; j < rowSize; j++) {
-        row.push({ value: 0, isRevealed: false });
-      }
-      newCells.push(row);
-    }
-
-    // Place pieces by sampling without replacement (shuffle coordinates)
-    const coords: number[][] = [];
-    for (let r = 0; r < rowSize; r++) {
-      for (let c = 0; c < colSize; c++) {
-        coords.push([r, c]);
-      }
-    }
-
-    // Fisher-Yates shuffle using either Math.random() or the seeded RNG
-    for (let i = coords.length - 1; i > 0; i--) {
-      const rand = isRandom ? Math.random() : rng.nextFloat();
-      const j = Math.floor(rand * (i + 1));
-      const tmp = coords[i];
-      coords[i] = coords[j];
-      coords[j] = tmp;
-    }
-
-    // Assign first N coordinates to the N pieces (unique positions)
-    chessPiecesRef.current.forEach((piece, index) => {
-      const [row, col] = coords[index];
-      piece.row = row;
-      piece.col = col;
-      newCells[row][col].value = piece.type;
-    });
-
-    // Calculate possible moves for each piece and update cell values
-    chessPiecesRef.current.forEach((piece) => {
-      const moves: number[][] = getChessMoves(piece.type, piece.row, piece.col);
-      moves.forEach(([r, c]) => {
-        if (newCells[r][c].value === 0) {
-          newCells[r][c].value = 1;
-        } else if (typeof newCells[r][c].value === "number") {
-          newCells[r][c].value = (newCells[r][c].value as number) + 1;
-        }
-      });
-    });
-
+  useEffect(() => {
+    const newCells = initBoard(rowSize, colSize, isRandom, chessPiecesRef);
     setCells(newCells);
   }, []);
 

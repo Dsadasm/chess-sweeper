@@ -52,11 +52,11 @@ const formatTime = (seconds: number): string => {
 
 export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   // Init board state here
-  const colSize = 10;
   const rowSize = 10;
+  const colSize = 10;
   const [cells, setCells, chessPiecesRef] = useInitBoard(
-    colSize,
     rowSize,
+    colSize,
     isBoardRandom
   );
 
