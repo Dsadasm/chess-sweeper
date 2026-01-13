@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import getChessMoves from "../utils/getChessMoves";
 import LCG from "../utils/LCG";
 
@@ -42,7 +42,7 @@ export default function useInitBoard(
   );
   const rng = new LCG();
 
-  useEffect(() => {
+  useMemo(() => {
     // Initialize a 10x10 board with 0
     const newCells: Cell[][] = [];
     for (let i = 0; i < colSize; i++) {
