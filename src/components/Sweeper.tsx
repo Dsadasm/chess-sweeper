@@ -42,6 +42,14 @@ const countPieces = (cells: Cell[][]) => {
   return counts;
 };
 
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs
+    .toString()
+    .padStart(2, "0")}`;
+};
+
 export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   // Init board state here
   const colSize = 10;
@@ -54,6 +62,7 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
 
   const [boardState, setBoardState] = useState<"reveal" | "guess">("reveal");
   const [point, setPoint] = useState(15);
+  const pieceCounts = useMemo(() => countPieces(cells), [cells]);
 
   // Current selected piece
   const [selectedPieceType, setSelectedPieceType] = useState<
@@ -72,14 +81,6 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
 
   // Ref to store interval ID
   const timerRef = useRef<number | null>(null);
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
 
   useEffect(() => {
     // Clear any existing timer
@@ -114,14 +115,19 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     };
   }, [gameState]);
 
+  // Check win/lose conditions when points or piece counts change
+  useEffect(() => {
+    if (gameState === "playing") {
+      checkWinCondition();
+    }
+  }, [point, pieceCounts, timeLeft]);
+
   // Call on first reveal
   const startGame = () => {
     if (gameState === "waiting") {
       setGameState("playing");
     }
   };
-
-  const pieceCounts = useMemo(() => countPieces(cells), [cells]);
 
   const checkWinCondition = () => {
     if (gameState === "waiting") return;
@@ -152,12 +158,70 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
       return;
     }
   };
-  // Check win/lose conditions when points or piece counts change
-  useEffect(() => {
-    if (gameState === "playing") {
-      checkWinCondition();
+
+  // Reveal cells recursively from row, col
+  // Returns the points gained from the reveal
+  const revealCells = (
+    mCells: Cell[][],
+    row: number,
+    col: number,
+    step: number = 0
+  ): number => {
+    if (row < 0 || col < 0 || row >= rowSize || col >= colSize) return 0;
+    else if (mCells[row][col].isRevealed) return 0;
+    else if (step === 0) {
+      // Return if it is a chess piece
+      if (typeof mCells[row][col].value === "string") {
+        mCells[row][col].isRevealed = true;
+        return -5;
+      }
+
+      // if the value 0, it will be revealed in the next steps
+      if (mCells[row][col].value > 0) {
+        mCells[row][col].isRevealed = true;
+      }
+
+      // Reveal 3x3 area around the clicked cell that have value 0
+      for (let r = row - 1; r <= row + 1; r++) {
+        for (let c = col - 1; c <= col + 1; c++) {
+          // Skip out-of-bounds neighbors
+          if (r < 0 || c < 0 || r >= rowSize || c >= colSize) continue;
+          if (mCells[r][c].value === 0) {
+            revealCells(mCells, r, c, step + 1);
+          }
+        }
+      }
+
+      return -1;
+    } else {
+      mCells[row][col].isRevealed = true;
+
+      // Do normal minesweeper reveal for step > 0
+      if (mCells[row][col].value === 0) {
+        revealCells(mCells, row + 1, col, step + 1);
+        revealCells(mCells, row - 1, col, step + 1);
+        revealCells(mCells, row, col + 1, step + 1);
+        revealCells(mCells, row, col - 1, step + 1);
+      }
     }
-  }, [point, pieceCounts, timeLeft]);
+
+    return 0;
+  };
+
+  // Guess the piece at (row, col)
+  // Returns points gained from the guess
+  const guessPiece = (row: number, col: number): number => {
+    if (selectedPieceType === undefined) return 0;
+    else if (cells[row][col].isRevealed) return 0;
+    else if (cells[row][col].value === selectedPieceType) {
+      // Reveal single cell on correct guess
+      const newCells = [...cells];
+      newCells[row][col].isRevealed = true;
+      setCells(newCells);
+      return 3;
+    }
+    return -3;
+  };
 
   // Function when guess button is toggled
   const handleGuessButtonToggle = () => {
@@ -167,6 +231,20 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
       setBoardState("reveal");
       setSelectedPieceType(undefined); // Clear piece selection
     }
+  };
+
+  // Cell click handler
+  const handleCellClick = (row: number, col: number) => {
+    startGame();
+
+    const newCells = [...cells];
+    const pointsGain =
+      boardState === "reveal"
+        ? revealCells(newCells, row, col)
+        : guessPiece(row, col);
+
+    setCells(newCells);
+    setPoint((prevPoint) => prevPoint + pointsGain);
   };
 
   // ADD: Function to handle piece selection
@@ -251,12 +329,8 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
         {/* BOARD */}
         <div className={styles.item}>
           <Board
-            state={boardState}
-            setPoint={setPoint}
             cells={cells} // Pass cells to Board
-            setCells={setCells} // Pass setCells to Board
-            guessChessType={selectedPieceType}
-            startGame={startGame}
+            onCellClick={handleCellClick} // Pass cell click handler
           />
         </div>
 
