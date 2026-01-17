@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "./GamePopup.module.css";
+import styles from "./GamePopup.module.css";
 
 interface GamePopupProps {
   isOpen: boolean;
@@ -31,14 +31,14 @@ export default function GamePopup({
 
   return (
     <>
-      <div className="popup">
-        <div className="overlay" onClick={onClose}></div>
-        <div className="popup-content">
-          <h2>{title}</h2>
-          <p>{text}</p>
-          <button className="close-popup" onClick={onClose}>
-            CLOSE
-          </button>
+      <div className={styles.popup}>
+        <div className={styles.overlay} onClick={onClose}></div>
+        <div className={styles.popupcontent}>
+            <h2>{title}</h2>
+            <p>{text}</p>
+            <button className={styles.closepopup} onClick={onClose}>
+                X
+            </button>
         </div>
       </div>
     </>
