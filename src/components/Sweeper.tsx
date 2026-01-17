@@ -141,9 +141,9 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
       0
     );
 
-    // Win if no pieces left
-    if (totalPiecesLeft === 0) {
-      setGameState("won");
+    // Lose if no more points
+    if (point < 0) {
+      setGameState("lost");
       openPopup();
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -151,9 +151,9 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
       return;
     }
 
-    // Lose if no more points
-    if (point < 0) {
-      setGameState("lost");
+    // Win if no pieces left
+    if (totalPiecesLeft === 0) {
+      setGameState("won");
       openPopup();
       if (timerRef.current) {
         clearInterval(timerRef.current);
