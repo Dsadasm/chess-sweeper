@@ -1,5 +1,6 @@
 // Contains all main parts of ChessSweeper (i.e. Board + other UI parts)
 import Board from "../components/Board";
+import GamePopup from "../components/GamePopup"
 import { useState, useEffect, useRef, useMemo } from "react";
 import styles from "./Sweeper.module.css";
 import useInitBoard from "../hooks/useInitBoard"; // Import the hook
@@ -75,6 +76,8 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
 
   // Popup for winning/losing
   const [showPopup, setShowPopup] = useState(false);
+  const openPopup = () => setShowPopup(true);
+  const closePopup = () => setShowPopup(false);
 
   // Timer
   const [timeLeft, setTimeLeft] = useState(180);
@@ -141,7 +144,7 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     // Win if no pieces left
     if (totalPiecesLeft === 0) {
       setGameState("won");
-      setShowPopup(true);
+      openPopup();
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
@@ -151,7 +154,7 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     // Lose if no more points
     if (point < 0) {
       setGameState("lost");
-      setShowPopup(true);
+      openPopup();
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
@@ -280,170 +283,146 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     setCells(newCells);
   };
 
-  // Popup component
-  const GamePopup = () => {
-    if (!showPopup) return null;
+  const popupTitle =
+    gameState === "won" ? "Congratulations! You Won!" : "Game Over!";
 
-    const popupTitle =
-      gameState === "won" ? "Congratulations! You Won!" : "Game Over!";
-    const popupMessage =
-      gameState === "won"
-        ? `You found all chess pieces with ${point} points and ${formatTime(
-            timeLeft
-          )} remaining!`
-        : `${point < 0 ? "You lost!" : "You flagged!"} ${Object.values(
-            pieceCounts
-          ).reduce((a, b) => a + b, 0)} pieces remaining.`;
-
-    return (
-      <div className={styles.popupOverlay}>
-        <div className={styles.popup}>
-          <h2 className={styles.popupTitle}>{popupTitle}</h2>
-          <p className={styles.popupMessage}>{popupMessage}</p>
-          <p className={styles.popupStats}>
-            Final Score: {point} points
-            <br />
-            Time Remaining: {formatTime(timeLeft)}
-            <br />
-          </p>
-          <div className={styles.popupButtons}>
-            <button className={`${styles.button} ${styles.popupButton}`}>
-              Play Again
-            </button>
-            <button
-              className={`${styles.button} ${styles.popupButtonSecondary}`}
-              onClick={() => setShowPopup(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const popupText =
+    gameState === "won"
+      ? `You found all chess pieces with ${point} points and ${formatTime(
+          timeLeft
+        )} remaining!`
+      : `${point < 0 ? "You lost!" : "You flagged!"} ${Object.values(
+          pieceCounts
+        ).reduce((a, b) => a + b, 0)} pieces remaining.`;
 
   return (
-    <div className={styles.container}>
-      {/* MAIN SECTION */}
-      <main className={styles.mainContent}>
-        {/* BOARD */}
-        <div className={styles.item}>
-          <Board
-            cells={cells} // Pass cells to Board
-            onCellClick={handleCellClick} // Pass cell click handler
-          />
-        </div>
+    <>
+      <div className={styles.container}>
+        {/* MAIN SECTION */}
+        <main className={styles.mainContent}>
+          {/* BOARD */}
+          <div className={styles.item}>
+            <Board
+              cells={cells} // Pass cells to Board
+              onCellClick={handleCellClick} // Pass cell click handler
+            />
+          </div>
 
-        {/* SIDE BAR TO THE RIGHT (a bunch of buttons) */}
-        <div className={styles.item}>
-          <aside className={styles.sidePanel}>
-            {/* ROW 1: TIMER & SCORE (NOT FUNCTIONAL YET)*/}
-            <div className={styles.buttonRow}>
-              <div className={styles.buttonGroup}>
-                <p className={styles.textDisplay}> {formatTime(timeLeft)} </p>
-                <p className={styles.textDisplay}> {point} </p>
+          {/* SIDE BAR TO THE RIGHT (a bunch of buttons) */}
+          <div className={styles.item}>
+            <aside className={styles.sidePanel}>
+              {/* ROW 1: TIMER & SCORE (NOT FUNCTIONAL YET)*/}
+              <div className={styles.buttonRow}>
+                <div className={styles.buttonGroup}>
+                  <p className={styles.textDisplay}> {formatTime(timeLeft)} </p>
+                  <p className={styles.textDisplay}> {point} </p>
+                </div>
               </div>
-            </div>
 
-            {/* ROW 2: Action Buttons */}
-            <div className={styles.buttonRow}>
-              <button
-                className={`${styles.button} ${
-                  boardState === "guess" ? styles.active : ""
-                }`}
-                onClick={handleGuessButtonToggle}
-              >
-                {"Guess"}
-              </button>
-            </div>
-
-            {/* ROW 3: Pieces Left */}
-            <div className={styles.buttonRow}>
-              <h3 className={styles.rowTitle}>Pieces Left</h3>
-              <div className={styles.buttonGroup}>
+              {/* ROW 2: Action Buttons */}
+              <div className={styles.buttonRow}>
                 <button
-                  className={`${styles.pieceButton} ${
-                    selectedPieceType === "king" ? styles.selected : ""
+                  className={`${styles.button} ${
+                    boardState === "guess" ? styles.active : ""
                   }`}
-                  onClick={() => handlePieceSelect("king")}
-                  disabled={boardState !== "guess" || pieceCounts.king === 0}
+                  onClick={handleGuessButtonToggle}
                 >
-                  <img src={wK} alt="King"></img>
+                  {"Guess"}
                 </button>
-                <p className={styles.pieceCountDisplay}>{pieceCounts.king}</p>
-                <button
-                  className={`${styles.pieceButton} ${
-                    selectedPieceType === "queen" ? styles.selected : ""
-                  }`}
-                  onClick={() => handlePieceSelect("queen")}
-                  disabled={boardState !== "guess" || pieceCounts.queen === 0}
-                >
-                  <img src={wQ} alt="Queen"></img>
-                </button>
-                <p className={styles.pieceCountDisplay}>{pieceCounts.queen}</p>
-                <button
-                  className={`${styles.pieceButton} ${
-                    selectedPieceType === "rook" ? styles.selected : ""
-                  }`}
-                  onClick={() => handlePieceSelect("rook")}
-                  disabled={boardState !== "guess" || pieceCounts.rook === 0}
-                >
-                  <img src={wR} alt="Rook"></img>
-                </button>
-                <p className={styles.pieceCountDisplay}>{pieceCounts.rook}</p>
               </div>
-            </div>
 
-            {/* ROW 4: Pieces Left */}
-            <div className={styles.buttonRow}>
-              <div className={styles.buttonGroup}>
-                <button
-                  className={`${styles.pieceButton} ${
-                    selectedPieceType === "bishop" ? styles.selected : ""
-                  }`}
-                  onClick={() => handlePieceSelect("bishop")}
-                  disabled={boardState !== "guess" || pieceCounts.bishop === 0}
-                >
-                  <img src={wB} alt="Bishop"></img>
-                </button>
-                <p className={styles.pieceCountDisplay}>{pieceCounts.bishop}</p>
-                <button
-                  className={`${styles.pieceButton} ${
-                    selectedPieceType === "knight" ? styles.selected : ""
-                  }`}
-                  onClick={() => handlePieceSelect("knight")}
-                  disabled={boardState !== "guess" || pieceCounts.knight === 0}
-                >
-                  <img src={wN} alt="Knight"></img>
-                </button>
-                <p className={styles.pieceCountDisplay}>{pieceCounts.knight}</p>
-                <button
-                  className={`${styles.pieceButton} ${
-                    selectedPieceType === "pawn" ? styles.selected : ""
-                  }`}
-                  onClick={() => handlePieceSelect("pawn")}
-                  disabled={boardState !== "guess" || pieceCounts.pawn === 0}
-                >
-                  <img src={wP} alt="Pawn"></img>
-                </button>
-                <p className={styles.pieceCountDisplay}>{pieceCounts.pawn}</p>
+              {/* ROW 3: Pieces Left */}
+              <div className={styles.buttonRow}>
+                <h3 className={styles.rowTitle}>Pieces Left</h3>
+                <div className={styles.buttonGroup}>
+                  <button
+                    className={`${styles.pieceButton} ${
+                      selectedPieceType === "king" ? styles.selected : ""
+                    }`}
+                    onClick={() => handlePieceSelect("king")}
+                    disabled={boardState !== "guess" || pieceCounts.king === 0}
+                  >
+                    <img src={wK} alt="King"></img>
+                  </button>
+                  <p className={styles.pieceCountDisplay}>{pieceCounts.king}</p>
+                  <button
+                    className={`${styles.pieceButton} ${
+                      selectedPieceType === "queen" ? styles.selected : ""
+                    }`}
+                    onClick={() => handlePieceSelect("queen")}
+                    disabled={boardState !== "guess" || pieceCounts.queen === 0}
+                  >
+                    <img src={wQ} alt="Queen"></img>
+                  </button>
+                  <p className={styles.pieceCountDisplay}>{pieceCounts.queen}</p>
+                  <button
+                    className={`${styles.pieceButton} ${
+                      selectedPieceType === "rook" ? styles.selected : ""
+                    }`}
+                    onClick={() => handlePieceSelect("rook")}
+                    disabled={boardState !== "guess" || pieceCounts.rook === 0}
+                  >
+                    <img src={wR} alt="Rook"></img>
+                  </button>
+                  <p className={styles.pieceCountDisplay}>{pieceCounts.rook}</p>
+                </div>
               </div>
-            </div>
 
-            {/* ROW 5: TOGGLE RESOLVED */}
-            <div className={styles.buttonRow}>
-              <button
-                className={styles.button}
-                onClick={() => handleToggleResolved()}
-              >
-                Toggle Resolved
-              </button>
-            </div>
-          </aside>
-        </div>
-      </main>
-      {/* Game Popup */}
-      <GamePopup />
-    </div>
+              {/* ROW 4: Pieces Left */}
+              <div className={styles.buttonRow}>
+                <div className={styles.buttonGroup}>
+                  <button
+                    className={`${styles.pieceButton} ${
+                      selectedPieceType === "bishop" ? styles.selected : ""
+                    }`}
+                    onClick={() => handlePieceSelect("bishop")}
+                    disabled={boardState !== "guess" || pieceCounts.bishop === 0}
+                  >
+                    <img src={wB} alt="Bishop"></img>
+                  </button>
+                  <p className={styles.pieceCountDisplay}>{pieceCounts.bishop}</p>
+                  <button
+                    className={`${styles.pieceButton} ${
+                      selectedPieceType === "knight" ? styles.selected : ""
+                    }`}
+                    onClick={() => handlePieceSelect("knight")}
+                    disabled={boardState !== "guess" || pieceCounts.knight === 0}
+                  >
+                    <img src={wN} alt="Knight"></img>
+                  </button>
+                  <p className={styles.pieceCountDisplay}>{pieceCounts.knight}</p>
+                  <button
+                    className={`${styles.pieceButton} ${
+                      selectedPieceType === "pawn" ? styles.selected : ""
+                    }`}
+                    onClick={() => handlePieceSelect("pawn")}
+                    disabled={boardState !== "guess" || pieceCounts.pawn === 0}
+                  >
+                    <img src={wP} alt="Pawn"></img>
+                  </button>
+                  <p className={styles.pieceCountDisplay}>{pieceCounts.pawn}</p>
+                </div>
+              </div>
+
+              {/* ROW 5: TOGGLE RESOLVED */}
+              <div className={styles.buttonRow}>
+                <button
+                  className={styles.button}
+                  onClick={() => handleToggleResolved()}
+                >
+                  Toggle Resolved
+                </button>
+              </div>
+            </aside>
+          </div>
+        </main>
+      </div>
+      <GamePopup 
+          isOpen={showPopup} 
+          onClose={closePopup}
+          title={popupTitle}
+          text={popupText}
+        />
+    </>
   );
 }
