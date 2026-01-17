@@ -1,46 +1,74 @@
-import React, { useEffect } from "react";
+import { useState } from "react";
 import styles from "./GamePopup.module.css";
 
 interface GamePopupProps {
-  isOpen: boolean;
   onClose: () => void;
+  onPlayAgain: () => void;
+  onUpload: (name: string) => void;
+  isBoardRandom: boolean;
+  isWon: boolean;
   title: string;
   text: string;
 }
 
-export default function GamePopup({ 
-  isOpen, 
-  onClose, 
+export default function GamePopup({
+  onClose,
+  onPlayAgain,
+  onUpload,
+  isBoardRandom,
+  isWon,
   title,
-  text
+  text,
 }: GamePopupProps) {
-  
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add("active-popup");
-    } else {
-      document.body.classList.remove("active-popup");
+  const [playerName, setPlayerName] = useState("");
+
+  const handleUpload = () => {
+    if (!playerName.trim()) {
+      alert("Please enter your name");
+      return;
     }
-    
-    return () => {
-      document.body.classList.remove("active-popup");
-    };
-  }, [isOpen]);
-  
-  if (!isOpen) return null;
+
+    onUpload(playerName);
+  };
+
+  const content = () => {
+    if (isBoardRandom) {
+      return (
+        <button className={styles.actionButton} onClick={onPlayAgain}>
+          Play Again
+        </button>
+      );
+    } else if (!isBoardRandom && isWon) {
+      return (
+        <>
+          <input
+            type="text"
+            placeholder="Enter your name"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleUpload()}
+            className={styles.nameInput}
+          />
+          <button className={styles.actionButton} onClick={handleUpload}>
+            Upload
+          </button>
+        </>
+      );
+    } else if (!isBoardRandom && !isWon) {
+      return null;
+    }
+  };
 
   return (
-    <>
-      <div className={styles.popup}>
-        <div className={styles.overlay} onClick={onClose}></div>
-        <div className={styles.popupcontent}>
-            <h2>{title}</h2>
-            <p>{text}</p>
-            <button className={styles.closepopup} onClick={onClose}>
-                X
-            </button>
-        </div>
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <button className={styles.closeButton} onClick={onClose}>
+          X
+        </button>
+        <h2>{title}</h2>
+        <p>{text}</p>
+        {content()}
       </div>
-    </>
+    </div>
   );
 }

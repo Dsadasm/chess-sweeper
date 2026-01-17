@@ -1,10 +1,10 @@
 // Contains all main parts of ChessSweeper (i.e. Board + other UI parts)
 import Board from "../components/Board";
-import GamePopup from "../components/GamePopup"
+import GamePopup from "../components/GamePopup";
 import { useState, useEffect, useRef, useMemo } from "react";
 import styles from "./Sweeper.module.css";
 import useInitBoard from "../hooks/useInitBoard"; // Import the hook
-import type { Cell } from "../hooks/useInitBoard";
+import { initBoard, type Cell } from "../hooks/useInitBoard";
 import getChessMoves from "../utils/getChessMoves";
 
 // Images
@@ -19,38 +19,6 @@ interface SweeperProps {
   isBoardRandom: boolean;
 }
 
-const countPieces = (cells: Cell[][]) => {
-  const counts = {
-    pawn: 0,
-    rook: 0,
-    knight: 0,
-    bishop: 0,
-    queen: 0,
-    king: 0,
-  };
-
-  cells.forEach((row) => {
-    row.forEach((cell) => {
-      if (!cell.isRevealed && typeof cell.value === "string") {
-        const pieceType = cell.value as keyof typeof counts;
-        if (counts.hasOwnProperty(pieceType)) {
-          counts[pieceType] += 1;
-        }
-      }
-    });
-  });
-
-  return counts;
-};
-
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins.toString().padStart(2, "0")}:${secs
-    .toString()
-    .padStart(2, "0")}`;
-};
-
 export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   // Init board state here
   const rowSize = 10;
@@ -58,9 +26,8 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   const [cells, setCells, chessPiecesRef] = useInitBoard(
     rowSize,
     colSize,
-    isBoardRandom
+    isBoardRandom,
   );
-
   const [boardState, setBoardState] = useState<"reveal" | "guess">("reveal");
   const [point, setPoint] = useState(15);
   const pieceCounts = useMemo(() => countPieces(cells), [cells]);
@@ -69,21 +36,28 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
   const [selectedPieceType, setSelectedPieceType] = useState<
     "pawn" | "rook" | "knight" | "bishop" | "queen" | "king" | undefined
   >(undefined);
-
   const [gameState, setGameState] = useState<
     "waiting" | "playing" | "won" | "lost"
   >("waiting");
 
-  // Popup for winning/losing
+  // Timer
+  const [timeLeft, setTimeLeft] = useState(180);
+  const timerRef = useRef<number | null>(null);
+
+  // Popup
   const [showPopup, setShowPopup] = useState(false);
   const openPopup = () => setShowPopup(true);
   const closePopup = () => setShowPopup(false);
-
-  // Timer
-  const [timeLeft, setTimeLeft] = useState(180);
-
-  // Ref to store interval ID
-  const timerRef = useRef<number | null>(null);
+  const popupTitle =
+    gameState === "won" ? "Congratulations! You Won!" : "Game Over!";
+  const popupText =
+    gameState === "won"
+      ? `You found all chess pieces with ${point} points and ${formatTime(
+          timeLeft,
+        )} remaining!`
+      : `${point < 0 ? "You lost!" : "You flagged!"} ${Object.values(
+          pieceCounts,
+        ).reduce((a, b) => a + b, 0)} pieces remaining.`;
 
   useEffect(() => {
     // Clear any existing timer
@@ -125,20 +99,13 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     }
   }, [point, pieceCounts, timeLeft]);
 
-  // Call on first reveal
-  const startGame = () => {
-    if (gameState === "waiting") {
-      setGameState("playing");
-    }
-  };
-
   const checkWinCondition = () => {
     if (gameState === "waiting") return;
 
     // Calculate total pieces left
     const totalPiecesLeft = Object.values(pieceCounts).reduce(
       (sum, count) => sum + count,
-      0
+      0,
     );
 
     // Lose if no more points
@@ -162,70 +129,6 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     }
   };
 
-  // Reveal cells recursively from row, col
-  // Returns the points gained from the reveal
-  const revealCells = (
-    mCells: Cell[][],
-    row: number,
-    col: number,
-    step: number = 0
-  ): number => {
-    if (row < 0 || col < 0 || row >= rowSize || col >= colSize) return 0;
-    else if (mCells[row][col].isRevealed) return 0;
-    else if (step === 0) {
-      // Return if it is a chess piece
-      if (typeof mCells[row][col].value === "string") {
-        mCells[row][col].isRevealed = true;
-        return -5;
-      }
-
-      // if the value 0, it will be revealed in the next steps
-      if (mCells[row][col].value > 0) {
-        mCells[row][col].isRevealed = true;
-      }
-
-      // Reveal 3x3 area around the clicked cell that have value 0
-      for (let r = row - 1; r <= row + 1; r++) {
-        for (let c = col - 1; c <= col + 1; c++) {
-          // Skip out-of-bounds neighbors
-          if (r < 0 || c < 0 || r >= rowSize || c >= colSize) continue;
-          if (mCells[r][c].value === 0) {
-            revealCells(mCells, r, c, step + 1);
-          }
-        }
-      }
-
-      return -1;
-    } else {
-      mCells[row][col].isRevealed = true;
-
-      // Do normal minesweeper reveal for step > 0
-      if (mCells[row][col].value === 0) {
-        revealCells(mCells, row + 1, col, step + 1);
-        revealCells(mCells, row - 1, col, step + 1);
-        revealCells(mCells, row, col + 1, step + 1);
-        revealCells(mCells, row, col - 1, step + 1);
-      }
-    }
-
-    return 0;
-  };
-
-  // Guess the piece at (row, col)
-  // Returns points gained from the guess
-  const guessPiece = (row: number, col: number): number => {
-    if (selectedPieceType === undefined) return 0;
-    else if (cells[row][col].isRevealed) return 0;
-    else if (cells[row][col].value === selectedPieceType) {
-      // Reveal single cell on correct guess
-      const newCells = [...cells];
-      newCells[row][col].isRevealed = true;
-      setCells(newCells);
-      return 3;
-    }
-    return -3;
-  };
-
   // Function when guess button is toggled
   const handleGuessButtonToggle = () => {
     if (boardState === "reveal") {
@@ -238,21 +141,24 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
 
   // Cell click handler
   const handleCellClick = (row: number, col: number) => {
-    startGame();
+    if (gameState === "waiting") {
+      setGameState("playing");
+    }
 
     const newCells = [...cells];
     const pointsGain =
       boardState === "reveal"
         ? revealCells(newCells, row, col)
-        : guessPiece(row, col);
+        : guessPiece(selectedPieceType, row, col, newCells);
 
     setCells(newCells);
     setPoint((prevPoint) => prevPoint + pointsGain);
+    setSelectedPieceType(undefined);
   };
 
   // ADD: Function to handle piece selection
   const handlePieceSelect = (
-    pieceType: "pawn" | "rook" | "knight" | "bishop" | "queen" | "king"
+    pieceType: "pawn" | "rook" | "knight" | "bishop" | "queen" | "king",
   ) => {
     // Only allow selection in guess mode
     if (boardState !== "guess") return;
@@ -283,17 +189,40 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
     setCells(newCells);
   };
 
-  const popupTitle =
-    gameState === "won" ? "Congratulations! You Won!" : "Game Over!";
+  // Reset everything
+  const handlePlayAgain = () => {
+    const newCells = initBoard(rowSize, colSize, isBoardRandom, chessPiecesRef);
+    setCells(newCells);
+    setTimeLeft(180);
+    timerRef.current = null;
+    setPoint(15);
+    setBoardState("reveal");
+    setGameState("waiting");
+    setSelectedPieceType(undefined);
+    setShowPopup(false);
+  };
 
-  const popupText =
-    gameState === "won"
-      ? `You found all chess pieces with ${point} points and ${formatTime(
-          timeLeft
-        )} remaining!`
-      : `${point < 0 ? "You lost!" : "You flagged!"} ${Object.values(
-          pieceCounts
-        ).reduce((a, b) => a + b, 0)} pieces remaining.`;
+  // Upload daily record
+  const handleUploadDialyRecord = async (name: string) => {
+    const url = "http://127.0.0.1:8000/api/dailyrecords/";
+    const body = JSON.stringify({
+      name: name,
+      point: point,
+      time: timeLeft.toString(),
+    });
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body,
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    alert("Daily Record Uploaded");
+    setShowPopup(false);
+  };
 
   return (
     <>
@@ -354,7 +283,9 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
                   >
                     <img src={wQ} alt="Queen"></img>
                   </button>
-                  <p className={styles.pieceCountDisplay}>{pieceCounts.queen}</p>
+                  <p className={styles.pieceCountDisplay}>
+                    {pieceCounts.queen}
+                  </p>
                   <button
                     className={`${styles.pieceButton} ${
                       selectedPieceType === "rook" ? styles.selected : ""
@@ -376,21 +307,29 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
                       selectedPieceType === "bishop" ? styles.selected : ""
                     }`}
                     onClick={() => handlePieceSelect("bishop")}
-                    disabled={boardState !== "guess" || pieceCounts.bishop === 0}
+                    disabled={
+                      boardState !== "guess" || pieceCounts.bishop === 0
+                    }
                   >
                     <img src={wB} alt="Bishop"></img>
                   </button>
-                  <p className={styles.pieceCountDisplay}>{pieceCounts.bishop}</p>
+                  <p className={styles.pieceCountDisplay}>
+                    {pieceCounts.bishop}
+                  </p>
                   <button
                     className={`${styles.pieceButton} ${
                       selectedPieceType === "knight" ? styles.selected : ""
                     }`}
                     onClick={() => handlePieceSelect("knight")}
-                    disabled={boardState !== "guess" || pieceCounts.knight === 0}
+                    disabled={
+                      boardState !== "guess" || pieceCounts.knight === 0
+                    }
                   >
                     <img src={wN} alt="Knight"></img>
                   </button>
-                  <p className={styles.pieceCountDisplay}>{pieceCounts.knight}</p>
+                  <p className={styles.pieceCountDisplay}>
+                    {pieceCounts.knight}
+                  </p>
                   <button
                     className={`${styles.pieceButton} ${
                       selectedPieceType === "pawn" ? styles.selected : ""
@@ -417,12 +356,118 @@ export default function SweeperLayout({ isBoardRandom = true }: SweeperProps) {
           </div>
         </main>
       </div>
-      <GamePopup 
-          isOpen={showPopup} 
+      {showPopup && (
+        <GamePopup
           onClose={closePopup}
+          onUpload={handleUploadDialyRecord}
+          onPlayAgain={handlePlayAgain}
+          isBoardRandom={isBoardRandom}
+          isWon={gameState == "won"}
           title={popupTitle}
           text={popupText}
         />
+      )}
     </>
   );
 }
+
+const countPieces = (cells: Cell[][]) => {
+  const counts = {
+    pawn: 0,
+    rook: 0,
+    knight: 0,
+    bishop: 0,
+    queen: 0,
+    king: 0,
+  };
+
+  cells.forEach((row) => {
+    row.forEach((cell) => {
+      if (!cell.isRevealed && typeof cell.value === "string") {
+        const pieceType = cell.value as keyof typeof counts;
+        if (counts.hasOwnProperty(pieceType)) {
+          counts[pieceType] += 1;
+        }
+      }
+    });
+  });
+
+  return counts;
+};
+
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs
+    .toString()
+    .padStart(2, "0")}`;
+};
+
+// Reveal cells recursively from row, col
+// Returns the points gained from the reveal
+const revealCells = (
+  mCells: Cell[][],
+  row: number,
+  col: number,
+  step: number = 0,
+  rowSize: number = 10,
+  colSize: number = 10,
+): number => {
+  if (row < 0 || col < 0 || row >= rowSize || col >= colSize) return 0;
+  else if (mCells[row][col].isRevealed) return 0;
+  else if (step === 0) {
+    // Return if it is a chess piece
+    if (typeof mCells[row][col].value === "string") {
+      mCells[row][col].isRevealed = true;
+      return -5;
+    }
+
+    // if the value 0, it will be revealed in the next steps
+    if (mCells[row][col].value > 0) {
+      mCells[row][col].isRevealed = true;
+    }
+
+    // Reveal 3x3 area around the clicked cell that have value 0
+    for (let r = row - 1; r <= row + 1; r++) {
+      for (let c = col - 1; c <= col + 1; c++) {
+        // Skip out-of-bounds neighbors
+        if (r < 0 || c < 0 || r >= rowSize || c >= colSize) continue;
+        if (mCells[r][c].value === 0) {
+          revealCells(mCells, r, c, step + 1);
+        }
+      }
+    }
+
+    return -1;
+  } else {
+    mCells[row][col].isRevealed = true;
+
+    // Do normal minesweeper reveal for step > 0
+    if (mCells[row][col].value === 0) {
+      revealCells(mCells, row + 1, col, step + 1);
+      revealCells(mCells, row - 1, col, step + 1);
+      revealCells(mCells, row, col + 1, step + 1);
+      revealCells(mCells, row, col - 1, step + 1);
+    }
+  }
+
+  return 0;
+};
+
+// Guess the piece at (row, col)
+// Returns points gained from the guess
+const guessPiece = (
+  type: string | undefined,
+  row: number,
+  col: number,
+  mCells: Cell[][],
+): number => {
+  if (type === undefined) return 0;
+  else if (mCells[row][col].isRevealed) return 0;
+  else if (mCells[row][col].value === type) {
+    // Reveal single cell on correct guess
+    mCells[row][col].isRevealed = true;
+    return 3;
+  }
+  return -3;
+};
